@@ -384,7 +384,7 @@ check() {
 
   say ""
   say "--- 实际解析 ---"
-  resolvectl query example.com 2>&1 | sed -n '1,4p'
+  timeout 5 resolvectl query example.com 2>&1 | sed -n '1,4p' || true
 
   say ""
   say "--- 出口解析器归属 ---"
@@ -473,8 +473,8 @@ install() {
 
   # 5) 验证
   say ">> 验证解析..."
-  if ! resolvectl query example.com >"$BK/verify.txt" 2>&1; then
-    cat "$BK/verify.txt"; revert
+  if ! timeout 5 resolvectl query example.com >"$BK/verify.txt" 2>&1; then
+    cat "$BK/verify.txt" 2>/dev/null; revert
   fi
   local left; left="$(leftover_dns)"
   [ -z "$left" ] || { warn "仍有 per-link DNS: $left"; revert; }
