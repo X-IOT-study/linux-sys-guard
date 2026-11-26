@@ -1,5 +1,8 @@
 # linux-sys-guard
 
+[![tests](https://github.com/X-IOT-study/linux-sys-guard/actions/workflows/tests.yml/badge.svg)](https://github.com/X-IOT-study/linux-sys-guard/actions/workflows/tests.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 一组**只做一件事、可以放心反复跑**的 Linux 系统维护小工具：防止 DNS 泄漏、
 只读系统体检、zswap 管理、Claude Code 会话健康检查与危险命令拦截。
 
@@ -19,6 +22,29 @@ tests/
 docs/
   dns-noleak.md  sysaudit.md  zswapctl.md  claude-health-hook.md  compatibility.md
 ```
+
+## 为什么会有这个仓库
+
+配好 DNS-over-TLS 之后，很多人以为 DNS 就加密了。实际上：
+
+```console
+$ resolvectl status
+Global
+         Protocols: -LLMNR -mDNS +DNSOverTLS DNSSEC=no/unsupported
+       DNS Servers: 1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net
+
+$ resolvectl dns
+Link 2 (enp2s0): 192.168.0.1      ← 路由器，明文
+Link 3 (wlo1):   192.168.0.1      ← 路由器，明文
+```
+
+`systemd-resolved` 会把全局 DNS 和 **DHCP 下发的 per-link DNS 并行使用**
+（resolved.conf(5) 原文：*"in parallel to suitable per-link DNS servers"*）。
+更麻烦的是 per-link 查询会绑定源地址（`from 192.168.0.x`），从而**绕开**
+TUN 的策略路由 —— 明文 DNS 直接到达路由器，运营商看得一清二楚。
+
+而 per-link DNS **每换一个网络就重新出现一次**，所以「跑一次脚本清一次」必然失效。
+这就是 `dns-noleak.sh` 存在的理由：把「清掉」做成常驻机制，而不是一次性的命令。
 
 ## 快速开始
 
