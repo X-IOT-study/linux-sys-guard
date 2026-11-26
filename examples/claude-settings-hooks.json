@@ -1,0 +1,26 @@
+{
+  "_comment": "把 hooks 段合并进 ~/.claude/settings.json。脚本路径按实际情况改。",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/claude-health-hook.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/claude-health-hook.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

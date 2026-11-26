@@ -1,0 +1,18 @@
+# 运行产物
+*.tmp
+*.tmp.*
+audit-*.txt
+/system.txt
+/hardware.txt
+/storage.txt
+/services.txt
+/network.txt
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# sysaudit 默认输出（脚本所在目录 = bin/）
+/bin/*.txt
