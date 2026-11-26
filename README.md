@@ -2,6 +2,7 @@
 
 [![tests](https://github.com/X-IOT-study/linux-sys-guard/actions/workflows/tests.yml/badge.svg)](https://github.com/X-IOT-study/linux-sys-guard/actions/workflows/tests.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[English](README.en.md)
 
 一组**只做一件事、可以放心反复跑**的 Linux 系统维护小工具：防止 DNS 泄漏、
 只读系统体检、zswap 管理、Claude Code 会话健康检查与危险命令拦截。
