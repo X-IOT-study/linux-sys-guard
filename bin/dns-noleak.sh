@@ -42,7 +42,10 @@ readonly NETD_DROPIN_DIR=/etc/systemd/network
 readonly TIMER_UNIT=/etc/systemd/system/dns-noleak-guard.timer
 readonly TIMER_SERVICE=/etc/systemd/system/dns-noleak-guard.service
 
-readonly DEFAULT_SERVERS="1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net 223.5.5.5#dns.alidns.com"
+# 阿里放最前：它在中国大陆直连且返回大陆 CDN IP；CF/Quad9 需要翻墙，
+# systemd-resolved 会按响应速度动态选服务器，阿里直连快，自然优先被选。
+# 如果不使用 Clash 类代理，可把阿里替换为其它区域解析器。
+readonly DEFAULT_SERVERS="223.5.5.5#dns.alidns.com 1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net"
 
 TS="$(date +%Y%m%d-%H%M%S)"
 BK="/var/backups/dns-noleak-$TS"
