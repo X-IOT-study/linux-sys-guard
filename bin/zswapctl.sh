@@ -52,12 +52,14 @@ on)
     echo "zswap 本次开机已处于启用状态，跳过写入"
   fi
 
-  # 开机自启：写一个 oneshot unit，在 swap.target 之前把 sysfs 配好。
+  # 开机自启：oneshot unit，在 swap 激活前把 sysfs 配好。
+  # 不要 After=sysinit.target：那会和 WantedBy=swap.target 形成依赖环，
+  # systemd 会删掉 job，启动日志里出现 "ordering cycle" 警告。
   cat > "$UNIT" <<UNIT_EOF
 [Unit]
 Description=Enable zswap (zstd + zsmalloc)
 DefaultDependencies=no
-After=sysinit.target
+After=systemd-modules-load.service
 Before=swap.target
 
 [Service]

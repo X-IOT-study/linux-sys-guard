@@ -22,7 +22,8 @@
 #
 # 可调环境变量：
 #   DNS_SERVERS="1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net"
-#       完全覆盖解析器列表
+#       完全覆盖解析器列表。不要放国内解析器：resolved 按响应速度选服务器，
+#       大陆解析器必被选中，并会对被墙域名返回伪造地址。
 #   EXTRA_DNS="1.0.0.1#cloudflare-dns.com"
 #       追加到默认列表后面
 #   NO_PROBE=1        跳过连通性预检（离线环境用）
@@ -42,7 +43,19 @@ readonly NETD_DROPIN_DIR=/etc/systemd/network
 readonly TIMER_UNIT=/etc/systemd/system/dns-noleak-guard.timer
 readonly TIMER_SERVICE=/etc/systemd/system/dns-noleak-guard.service
 
-readonly DEFAULT_SERVERS="1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net 223.5.5.5#dns.alidns.com"
+# 默认只放两家境外 DoT 解析器，并且**不要**把大陆解析器加进这个列表。
+#
+# 实测教训：systemd-resolved 是「按响应速度挑选服务器」，不看列表顺序。只要列表
+# 里有一个大陆直连的解析器（如 223.5.5.5），它永远最快、永远被选中，而它会对被墙
+# 域名返回伪造地址（google / github / chatgpt 都会被指到不相干的 IP）。所以：
+#   - 靠调整顺序来「优先」某一家是无效的；
+#   - 把国内解析器放进列表会污染所有境外域名，且国内外会同时出错。
+#
+# 本机若跑着 Clash/mihomo 这类带 fake-ip 的代理，正确做法是把系统解析交给它
+# （DNS=127.0.0.1:1053 + DNSOverTLS=no）。本脚本只写 DoT 配置，不覆盖这种场景，
+# 请不要用本脚本的全局 DoT 与代理内置 DNS 混用。
+# 无代理且在国内网络的用户，请用 DNS_SERVERS=... 显式指定本区域可用的解析器。
+readonly DEFAULT_SERVERS="1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net"
 
 TS="$(date +%Y%m%d-%H%M%S)"
 BK="/var/backups/dns-noleak-$TS"
