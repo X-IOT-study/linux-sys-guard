@@ -75,8 +75,14 @@ sudo ./bin/dns-noleak.sh --revert # 全部还原
    都不认识 → 30 秒一次的 systemd timer 兜底（能力有限，会提示）；
 3. 备份改动前的连接配置到 `/var/backups/dns-noleak-<时间戳>/`，随时可回滚。
 
-默认解析器：Cloudflare `1.1.1.1`、Quad9 `9.9.9.9`、阿里 `223.5.5.5`
-（阿里作为国内直连兜底，关掉代理也能解析）。可覆盖：
+默认解析器：Cloudflare `1.1.1.1`、Quad9 `9.9.9.9`。
+
+> 不要把大陆解析器（如阿里 `223.5.5.5`）加进列表。systemd-resolved 是**按响应速度
+> 挑选服务器**，不看顺序；大陆解析器必被选中，并对被墙域名返回伪造地址。本机若跑
+> 着带 fake-ip 的代理（Clash / mihomo），正确做法是让系统解析走它
+> （`DNS=127.0.0.1:1053` + `DNSOverTLS=no`），本脚本不管这个场景。
+
+可覆盖：
 
 ```bash
 sudo DNS_SERVERS="1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net" ./bin/dns-noleak.sh

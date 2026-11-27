@@ -35,7 +35,7 @@ resolved.conf(5) 原文：
 
 ```ini
 [Resolve]
-DNS=1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net 223.5.5.5#dns.alidns.com
+DNS=1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net
 DNSOverTLS=yes
 Domains=~.
 FallbackDNS=
@@ -160,8 +160,18 @@ OK  没有 per-link DNS
 
 **关掉代理后完全不能上网？**
 
-默认列表里已经放了阿里 `223.5.5.5`（国内直连可达）。如果你的网络连阿里也到不了，
-用 `DNS_SERVERS=` 指定本地可达的 DoT 服务器，或加 `NO_PROBE=1 FORCE=1`。
+默认列表只有 Cloudflare 和 Quad9 两家境外 DoT，没有代理时可能都不通。用
+`DNS_SERVERS=` 指定本地可达的 DoT 服务器，或加 `NO_PROBE=1 FORCE=1`。
+
+**能加个国内解析器当兜底吗（比如阿里 `223.5.5.5`）？**
+
+不要。systemd-resolved **按响应速度挑选服务器**，不看列表顺序：大陆直连的解析器
+永远最快、永远被选中，而它会对被墙域名返回伪造地址（google / github / chatgpt 都会
+被指到不相干的 IP）。加进去的结果是国内外同时出错，靠调整顺序也无法避免。
+
+本机跑着 Clash / mihomo 这类带 fake-ip 的代理时，正确做法是把系统解析交给它：
+`DNS=127.0.0.1:1053` + `DNSOverTLS=no`。本脚本只写 DoT 配置，不覆盖这种场景，
+两者不要混用。
 
 **`/etc/resolv.conf` 里是 `127.0.0.53`，正常吗？**
 

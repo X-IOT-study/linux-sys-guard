@@ -77,8 +77,16 @@ Three layers:
    - **anything else** → 30-second systemd timer fallback (with a clear warning)
 3. Pre-change connection settings backed up to `/var/backups/dns-noleak-<ts>/`.
 
-Default resolvers: Cloudflare `1.1.1.1`, Quad9 `9.9.9.9`, Alibaba `223.5.5.5`
-(domestic fallback so resolution still works without a proxy). Override:
+Default resolvers: Cloudflare `1.1.1.1`, Quad9 `9.9.9.9`.
+
+> Do not add a mainland resolver (e.g. Alibaba `223.5.5.5`) to this list.
+> systemd-resolved picks servers **by response speed**, not list order; the
+> mainland resolver always wins and returns forged answers for blocked domains.
+> If a fake-ip proxy (Clash / mihomo) runs on the machine, hand system DNS to it
+> instead (`DNS=127.0.0.1:1053` + `DNSOverTLS=no`) — this script does not cover
+> that setup.
+
+Override:
 
 ```bash
 sudo DNS_SERVERS="1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net" ./bin/dns-noleak.sh
